@@ -8,7 +8,7 @@ class Apnews extends Plugin {
 			"Provides virtual AP News feeds",
 			"wn",
 			false,
-			"");
+			"https://github.com/supahgreg/ttrss-apnews/");
 	}
 
 	function api_version() {
