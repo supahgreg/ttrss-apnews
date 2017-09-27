@@ -18,8 +18,8 @@ class Apnews extends Plugin {
 	function init($host) {
 		$this->host = $host;
 		$host->add_hook($host::HOOK_SUBSCRIBE_FEED, $this);
-		$host->add_hook($host::HOOK_FETCH_FEED, $this);
 		$host->add_hook($host::HOOK_FEED_BASIC_INFO, $this);
+		$host->add_hook($host::HOOK_FETCH_FEED, $this);
 	}
 
 	function hook_subscribe_feed($contents, $url, $auth_login, $auth_pass) {
