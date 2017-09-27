@@ -23,8 +23,12 @@ class Apnews extends Plugin {
 	}
 
 	function hook_subscribe_feed($contents, $url, $auth_login, $auth_pass) {
-		// Bypass parsing of AP News HTML, which won't contain feed information.
-		return '';
+		// Bypass "Feeds::subscribe_to_feed" trying to get feeds from AP News URLs, site HTML or API JSON),
+		// since neither will succeed.
+		if ($this->get_tags_from_url($url)) {
+			return '';
+		}
+		return $contents;
 	}
 
 	function hook_feed_basic_info($basic_info, $fetch_url, $owner_uid, $feed_id, $auth_login, $auth_pass) {
