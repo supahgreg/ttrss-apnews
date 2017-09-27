@@ -27,20 +27,20 @@ class Apnews extends Plugin {
 		return '';
 	}
 
-	function hook_feed_basic_info($fetch_url, $owner_uid, $feed_id, $auth_login, $auth_pass) {
-		/*$tags = $this->get_tags_from_url($fetch_url);
+	function hook_feed_basic_info($basic_info, $fetch_url, $owner_uid, $feed_id, $auth_login, $auth_pass) {
+		$tags = $this->get_tags_from_url($fetch_url);
 		if (!$tags) {
-			return false;
+			return $basic_info;
 		}
 
 		$body = get_json(get_api_url($tags));
 		if (!$body) {
-			return false;
+			return $basic_info;
 		}
 
-		$ret = array('title' => get_title($body), 'site_url' => get_site_url($tags));*/
+		$info = array('site_url' => get_site_url($tags), 'title' => get_title($body));
 
-		return $this->hook_fetch_feed('', $fetch_url, $owner_uid, $feed_id, 0, $auth_login, $auth_pass);
+		return is_array($basic_info) ? array_merge($basic_info, $info) : $info;
 	}
 
 	private function get_tags_from_url($url) {
