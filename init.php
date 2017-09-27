@@ -33,12 +33,12 @@ class Apnews extends Plugin {
 			return $basic_info;
 		}
 
-		$body = get_json(get_api_url($tags));
+		$body = $this->get_json($this->get_api_url($tags));
 		if (!$body) {
 			return $basic_info;
 		}
 
-		$info = array('site_url' => get_site_url($tags), 'title' => get_title($body));
+		$info = array('site_url' => $this->get_site_url($tags), 'title' => $this->get_title($body));
 
 		return is_array($basic_info) ? array_merge($basic_info, $info) : $info;
 	}
