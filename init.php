@@ -43,33 +43,6 @@ class Apnews extends Plugin {
 		return is_array($basic_info) ? array_merge($basic_info, $info) : $info;
 	}
 
-	private function get_tags_from_url($url) {
-		if (preg_match('#^https://apnews\.com/tag/([^/]+)#', $url, $tags) ||
-			preg_match('#^https://afs-prod\.appspot\.com/api/v2/feed/tag\?tags=(.+)$#', $url, $tags)) {
-			return $tags[1];
-		}
-		return false;
-	}
-	
-	private function get_api_url($tags) {
-		return 'https://afs-prod.appspot.com/api/v2/feed/tag?tags='.$tags;
-	}
-	
-	private function get_site_url($tags) {
-		return 'https://apnews.com/tag/'.$tags;
-	}
-	
-	private function get_json($url) {
-		return json_decode(fetch_file_contents(array('url' => $url)), true);
-	}
-
-	private function get_title($body) {
-		// Create a feed title like "AP News: Tag A, Tag B, ..."
-		$feed_title_tags = array_column($body['tagObjs'], 'name');
-		sort($feed_title_tags);
-		return htmlspecialchars('AP News: '.implode(', ', $feed_title_tags));
-	}
-
 	function hook_fetch_feed($feed_data, $fetch_url, $owner_uid, $feed, $last_article_timestamp, $auth_login, $auth_pass) {
 		$tags = $this->get_tags_from_url($fetch_url);
 		if (!$tags) {
@@ -85,7 +58,7 @@ class Apnews extends Plugin {
 		}
 
 		$feed_title = $this->get_title($body);
-	
+
 		require_once 'lib/MiniTemplator.class.php';
 		$tpl = new MiniTemplator();
 
@@ -132,5 +105,32 @@ class Apnews extends Plugin {
 		}
 
 		return $feed_data;
+	}
+
+	private function get_tags_from_url($url) {
+		if (preg_match('#^https://apnews\.com/tag/([^/]+)#', $url, $tags) ||
+			preg_match('#^https://afs-prod\.appspot\.com/api/v2/feed/tag\?tags=(.+)$#', $url, $tags)) {
+			return $tags[1];
+		}
+		return false;
+	}
+
+	private function get_api_url($tags) {
+		return 'https://afs-prod.appspot.com/api/v2/feed/tag?tags='.$tags;
+	}
+
+	private function get_site_url($tags) {
+		return 'https://apnews.com/tag/'.$tags;
+	}
+
+	private function get_json($url) {
+		return json_decode(fetch_file_contents(array('url' => $url)), true);
+	}
+
+	private function get_title($body) {
+		// Create a feed title like "AP News: Tag A, Tag B, ..."
+		$feed_title_tags = array_column($body['tagObjs'], 'name');
+		sort($feed_title_tags);
+		return htmlspecialchars('AP News: '.implode(', ', $feed_title_tags));
 	}
 }
