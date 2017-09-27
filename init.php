@@ -68,7 +68,7 @@ class Apnews extends Plugin {
 
 		$tpl->readTemplateFromFile('templates/generated_feed.txt');
 
-		$tpl->setVariable('FEED_TITLE', $feed_title, true);
+		$tpl->setVariable('FEED_TITLE', htmlspecialchars($feed_title), true);
 		$tpl->setVariable('VERSION', VERSION, true);
 		$tpl->setVariable('FEED_URL', htmlspecialchars($api_url), true);
 		$tpl->setVariable('SELF_URL', htmlspecialchars($site_url), true);
@@ -80,19 +80,22 @@ class Apnews extends Plugin {
 				if (!$content['localLinkUrl']) {
 					continue;
 				}
+
 				$tpl->setVariable('ARTICLE_ID', htmlspecialchars($content['id']), true);
 				$tpl->setVariable('ARTICLE_LINK', htmlspecialchars($content['localLinkUrl']), true);
-				
+
 				$tpl->setVariable('ARTICLE_UPDATED_ATOM', date(DATE_ATOM, strtotime($content['updated'])), true);
-				
+
 				$tpl->setVariable('ARTICLE_TITLE', htmlspecialchars($content['headline']), true);
 				$tpl->setVariable('ARTICLE_AUTHOR', htmlspecialchars($content['bylines']), true);
+
+				// CDATA (don't convert characters)
 				$tpl->setVariable('ARTICLE_EXCERPT', $content['flattenedFirstWords'], true);
-				#$tpl->setVariable('ARTICLE_CONTENT', $content['storyHTML'], true);
+				// $tpl->setVariable('ARTICLE_CONTENT', $content['storyHTML'], true);
 				$tpl->setVariable('ARTICLE_CONTENT', $content['firstWords'], true);
-				
+
 				$tpl->setVariable('ARTICLE_SOURCE_LINK', htmlspecialchars($api_url), true);
-				$tpl->setVariable('ARTICLE_SOURCE_TITLE', $feed_title, true);
+				$tpl->setVariable('ARTICLE_SOURCE_TITLE', htmlspecialchars($feed_title), true);
 
 				$tpl->addBlock('entry');
 			}
@@ -135,6 +138,6 @@ class Apnews extends Plugin {
 		// Create a feed title like "AP News: Tag A, Tag B, ..."
 		$feed_title_tags = array_column($body['tagObjs'], 'name');
 		sort($feed_title_tags);
-		return htmlspecialchars('AP News: '.implode(', ', $feed_title_tags));
+		return 'AP News: '.implode(', ', $feed_title_tags);
 	}
 }
