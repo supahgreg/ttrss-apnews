@@ -2,7 +2,7 @@ AP News Tiny Tiny RSS Plugin
 ============================
 Overview
 ---------------------
-AP News no longer provides RSS feeds.  This plugin provides virtual AP News feeds based upon JSON used by their website.
+~~AP News no longer provides RSS feeds.~~  This plugin provides virtual AP News feeds based upon JSON used by their website.
 
 Installation
 ---------------------
