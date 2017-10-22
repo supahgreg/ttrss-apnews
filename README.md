@@ -6,11 +6,12 @@ AP News no longer provides RSS feeds.  This plugin provides virtual AP News feed
 
 Installation
 ---------------------
-1. Clone the repo to an **apnews** subdirectory in your **plugins.local** directory:
+1. Verify you're using Tiny Tiny RSS code from 2017-10-01 or later (specifically: [0f0d6ca559](https://git.tt-rss.org/git/tt-rss/commit/0f0d6ca55945edca137ffb37a17856b93f8c88d8)).
+2. Clone the repo to an **apnews** subdirectory in your **plugins.local** directory:
 
    `git clone https://github.com/supahgreg/ttrss-apnews.git apnews`
 
-2. Enable the plugin @ Preferences / Plugins
+3. Enable the plugin @ Preferences / Plugins
 
 Usage
 ---------------------
