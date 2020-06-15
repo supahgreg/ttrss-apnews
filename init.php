@@ -5,7 +5,7 @@ class Apnews extends Plugin {
 
   function about() {
     return [
-      1.0, // version
+      1.1, // version
       'Provides virtual AP News feeds', // description
       'wn', // author
       false, // is system
@@ -74,7 +74,7 @@ class Apnews extends Plugin {
     $tpl->readTemplateFromFile('templates/generated_feed.txt');
 
     $tpl->setVariable('FEED_TITLE', htmlspecialchars($feed_title), true);
-    $tpl->setVariable('VERSION', VERSION, true);
+    $tpl->setVariable('VERSION', get_version(), true);
     $tpl->setVariable('FEED_URL', htmlspecialchars($api_url), true);
     $tpl->setVariable('SELF_URL', htmlspecialchars($site_url), true);
 
