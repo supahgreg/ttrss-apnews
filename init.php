@@ -4,11 +4,13 @@ class Apnews extends Plugin {
   private $host;
 
   function about() {
-    return array(1.0,
-      "Provides virtual AP News feeds",
-      "wn",
-      false,
-      "https://github.com/supahgreg/ttrss-apnews/");
+    return [
+      1.0, // version
+      'Provides virtual AP News feeds', // description
+      'wn', // author
+      false, // is system
+      'https://github.com/supahgreg/ttrss-apnews/', // more info URL
+    ];
   }
 
   function api_version() {
@@ -42,7 +44,10 @@ class Apnews extends Plugin {
       return $basic_info;
     }
 
-    $info = array('site_url' => $this->get_site_url($tags), 'title' => $this->get_title($body));
+    $info = [
+      'site_url' => $this->get_site_url($tags),
+      'title' => $this->get_title($body),
+    ];
 
     return is_array($basic_info) ? array_merge($basic_info, $info) : $info;
   }
@@ -131,7 +136,7 @@ class Apnews extends Plugin {
   }
 
   private function get_json($url) {
-    return json_decode(fetch_file_contents(array('url' => $url)), true);
+    return json_decode(fetch_file_contents(['url' => $url]), true);
   }
 
   private function get_title($body) {
