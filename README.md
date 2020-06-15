@@ -2,7 +2,7 @@ AP News Tiny Tiny RSS Plugin
 ============================
 Overview
 ---------------------
-~~AP News no longer provides RSS feeds.~~  This plugin provides virtual AP News feeds based upon JSON used by their website.
+AP News no longer provides RSS feeds.  This plugin provides virtual AP News feeds based upon JSON used by their website.
 
 Installation
 ---------------------
@@ -15,6 +15,6 @@ Installation
 
 Usage
 ---------------------
-1. Browse to https://apnews.com and click one of the categories to get a URL like https://apnews.com/tag/apf-topnews
+1. Browse to https://apnews.com and click one of the categories to get a URL like https://apnews.com/apf-topnews
 2. Use the URL, as-is, to subscribe in Tiny Tiny RSS
-3. Optionally, subscribe using a multi-tag URL like https://apnews.com/tag/apf-topnews,apf-usnews
+3. Optionally, subscribe using a multi-tag URL like https://apnews.com/apf-topnews,apf-usnews
