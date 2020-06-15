@@ -28,7 +28,7 @@ class Apnews extends Plugin {
     // Bypass "Feeds::subscribe_to_feed" trying to get feeds from AP News URLs, site HTML or API JSON),
     // since neither will succeed.
     if ($this->get_tags_from_url($url)) {
-      return '';
+      return ' ';
     }
     return $contents;
   }
@@ -120,7 +120,7 @@ class Apnews extends Plugin {
   }
 
   private function get_tags_from_url($url) {
-    if (preg_match('#^https://apnews\.com/tag/([^/]+)#', $url, $tags) ||
+    if (preg_match('#^https://apnews\.com/(?:tag/)?([^/]+)#', $url, $tags) ||
       preg_match('#^https://afs-prod\.appspot\.com/api/v2/feed/tag\?tags=(.+)$#', $url, $tags)) {
       return $tags[1];
     }
@@ -132,7 +132,7 @@ class Apnews extends Plugin {
   }
 
   private function get_site_url($tags) {
-    return 'https://apnews.com/tag/'.$tags;
+    return 'https://apnews.com/'.$tags;
   }
 
   private function get_json($url) {
