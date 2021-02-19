@@ -5,7 +5,7 @@ class Apnews extends Plugin {
 
   function about() {
     return [
-      1.1, // version
+      2.0, // version
       'Provides virtual AP News feeds', // description
       'wn', // author
       false, // is system
@@ -25,7 +25,7 @@ class Apnews extends Plugin {
   }
 
   function hook_subscribe_feed($contents, $url, $auth_login, $auth_pass) {
-    // Bypass "Feeds::subscribe_to_feed" trying to get feeds from AP News URLs, site HTML or API JSON),
+    // Bypass "Feeds::subscribe_to_feed" trying to get feeds from AP News URLs, site HTML or API JSON,
     // since neither will succeed.
     if ($this->get_tags_from_url($url)) {
       return ' ';
@@ -39,14 +39,9 @@ class Apnews extends Plugin {
       return $basic_info;
     }
 
-    $body = $this->get_json($this->get_api_url($tags));
-    if (!$body) {
-      return $basic_info;
-    }
-
     $info = [
       'site_url' => $this->get_site_url($tags),
-      'title' => $this->get_title($body),
+      'title' => $this->get_title($tags),
     ];
 
     return is_array($basic_info) ? array_merge($basic_info, $info) : $info;
@@ -58,15 +53,15 @@ class Apnews extends Plugin {
       return $feed_data;
     }
 
-    $api_url = $this->get_api_url($tags);
     $site_url = $this->get_site_url($tags);
 
-    $body = $this->get_json($api_url);
+    $body = $this->get_json($site_url);
     if (!$body) {
       return $feed_data;
     }
+    $data = $body['hub']['data'][array_key_first($body['hub']['data'])];
 
-    $feed_title = $this->get_title($body);
+    $feed_title = $this->get_title($tags);
 
     require_once 'lib/MiniTemplator.class.php';
     $tpl = new MiniTemplator();
@@ -75,10 +70,10 @@ class Apnews extends Plugin {
 
     $tpl->setVariable('FEED_TITLE', htmlspecialchars($feed_title), true);
     $tpl->setVariable('VERSION', get_version(), true);
-    $tpl->setVariable('FEED_URL', htmlspecialchars($api_url), true);
+    $tpl->setVariable('FEED_URL', htmlspecialchars($site_url), true);
     $tpl->setVariable('SELF_URL', htmlspecialchars($site_url), true);
 
-    foreach ($body['cards'] as $card) {
+    foreach ($data['cards'] as $card) {
       foreach ($card['contents'] as $content) {
         // Attempting to filter out junk entries
         // TODO: revisit this to make sure legit stuff isn't getting excluded
@@ -99,7 +94,7 @@ class Apnews extends Plugin {
         // $tpl->setVariable('ARTICLE_CONTENT', $content['storyHTML'], true);
         $tpl->setVariable('ARTICLE_CONTENT', $content['firstWords'], true);
 
-        $tpl->setVariable('ARTICLE_SOURCE_LINK', htmlspecialchars($api_url), true);
+        $tpl->setVariable('ARTICLE_SOURCE_LINK', htmlspecialchars($site_url), true);
         $tpl->setVariable('ARTICLE_SOURCE_TITLE', htmlspecialchars($feed_title), true);
 
         $tpl->addBlock('entry');
@@ -120,29 +115,41 @@ class Apnews extends Plugin {
   }
 
   private function get_tags_from_url($url) {
-    if (preg_match('#^https://apnews\.com/(?:tag/)?([^/]+)#', $url, $tags) ||
+    if (preg_match('#^https://apnews\.com/hub/([\w,-]+)#', $url, $tags) ||
+      preg_match('#^https://apnews\.com/(?:tag/)?([^/]+)#', $url, $tags) ||
       preg_match('#^https://afs-prod\.appspot\.com/api/v2/feed/tag\?tags=(.+)$#', $url, $tags)) {
       return $tags[1];
     }
     return false;
   }
 
-  private function get_api_url($tags) {
-    return 'https://afs-prod.appspot.com/api/v2/feed/tag?tags='.$tags;
-  }
-
   private function get_site_url($tags) {
-    return 'https://apnews.com/'.$tags;
+    return 'https://apnews.com/hub/'.$tags;
   }
 
   private function get_json($url) {
-    return json_decode(fetch_file_contents(['url' => $url]), true);
+    $content = UrlHelper::fetch($url);
+    $doc = new DOMDocument();
+
+    if (@$doc->loadHTML('<?xml encoding="utf-8" ?>' . $content)) {
+      $scripts = $doc->getElementsByTagName('script');
+
+      foreach ($scripts as $script) {
+        $lines = explode(PHP_EOL, $script->nodeValue);
+        foreach ($lines as $line) {
+          // TODO: Do this better.  It's incredibly fragile.
+          if (strpos($line, "window['titanium-state'] = {") !== false) {
+            return json_decode(str_replace("window['titanium-state'] = ", '', $line), true);
+          }
+        }
+      }
+    }
+
+    return false;
   }
 
-  private function get_title($body) {
+  private function get_title($tags) {
     // Create a feed title like "AP News: Tag A, Tag B, ..."
-    $feed_title_tags = array_column($body['tagObjs'], 'name');
-    sort($feed_title_tags);
-    return 'AP News: '.implode(', ', $feed_title_tags);
+    return 'AP News: '.str_replace(',', ', ', $tags);
   }
 }
