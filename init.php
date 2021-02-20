@@ -5,7 +5,7 @@ class Apnews extends Plugin {
 
   function about() {
     return [
-      2.0, // version
+      2.1, // version
       'Provides virtual AP News feeds', // description
       'wn', // author
       false, // is system
@@ -128,7 +128,7 @@ class Apnews extends Plugin {
   }
 
   private function get_json($url) {
-    $content = UrlHelper::fetch($url);
+    $content = UrlHelper::fetch(['url' => $url]);
     $doc = new DOMDocument();
 
     if (@$doc->loadHTML('<?xml encoding="utf-8" ?>' . $content)) {
