@@ -1,11 +1,8 @@
 <?php
 class Apnews extends Plugin {
-
-  private $host;
-
   function about() {
     return [
-      2.1, // version
+      2.2, // version
       'Provides virtual AP News feeds', // description
       'wn', // author
       false, // is system
@@ -18,7 +15,6 @@ class Apnews extends Plugin {
   }
 
   function init($host) {
-    $this->host = $host;
     $host->add_hook($host::HOOK_SUBSCRIBE_FEED, $this);
     $host->add_hook($host::HOOK_FEED_BASIC_INFO, $this);
     $host->add_hook($host::HOOK_FETCH_FEED, $this);
