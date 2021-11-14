@@ -147,9 +147,9 @@ class Apnews extends Plugin {
     return 'https://apnews.com/hub/'.$tags;
   }
 
-	/**
-	 * @return array<int|string, mixed>|null
-	 */
+  /**
+   * @return array<int|string, mixed>|null
+   */
   private function get_json(string $url): ?array {
     $content = UrlHelper::fetch(['url' => $url]);
     $doc = new DOMDocument();
