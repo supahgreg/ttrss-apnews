@@ -20,6 +20,13 @@ class Apnews extends Plugin {
     $host->add_hook($host::HOOK_FETCH_FEED, $this);
   }
 
+  /**
+   * @param string $contents
+   * @param string $url
+   * @param string $auth_login
+   * @param string $auth_pass
+   * @return string (possibly mangled feed data)
+   */
   function hook_subscribe_feed($contents, $url, $auth_login, $auth_pass) {
     // Bypass "Feeds::subscribe_to_feed" trying to get feeds from AP News URLs, site HTML or API JSON,
     // since neither will succeed.
@@ -29,20 +36,37 @@ class Apnews extends Plugin {
     return $contents;
   }
 
+  /**
+   * @param array{"title": string, "site_url": string} $basic_info
+   * @param string $fetch_url
+   * @param int $owner_uid
+   * @param int $feed_id
+   * @param string $auth_login
+   * @param string $auth_pass
+   * @return array{"title": string, "site_url": string}
+   */
   function hook_feed_basic_info($basic_info, $fetch_url, $owner_uid, $feed_id, $auth_login, $auth_pass) {
     $tags = $this->get_tags_from_url($fetch_url);
     if (!$tags) {
       return $basic_info;
     }
 
-    $info = [
+    return array_merge($basic_info, [
       'site_url' => $this->get_site_url($tags),
       'title' => $this->get_title($tags),
-    ];
-
-    return is_array($basic_info) ? array_merge($basic_info, $info) : $info;
+    ]);
   }
 
+  /**
+   * @param string $feed_data
+   * @param string $fetch_url
+   * @param int $owner_uid
+   * @param int $feed
+   * @param int $last_article_timestamp
+   * @param string $auth_login
+   * @param string $auth_pass
+   * @return string (possibly mangled feed data)
+   */
   function hook_fetch_feed($feed_data, $fetch_url, $owner_uid, $feed, $last_article_timestamp, $auth_login, $auth_pass) {
     $tags = $this->get_tags_from_url($fetch_url);
     if (!$tags) {
@@ -65,7 +89,7 @@ class Apnews extends Plugin {
     $tpl->readTemplateFromFile('templates/generated_feed.txt');
 
     $tpl->setVariable('FEED_TITLE', htmlspecialchars($feed_title), true);
-    $tpl->setVariable('VERSION', get_version(), true);
+    $tpl->setVariable('VERSION', Config::get_version(), true);
     $tpl->setVariable('FEED_URL', htmlspecialchars($site_url), true);
     $tpl->setVariable('SELF_URL', htmlspecialchars($site_url), true);
 
@@ -110,20 +134,23 @@ class Apnews extends Plugin {
     return $feed_data;
   }
 
-  private function get_tags_from_url($url) {
+  private function get_tags_from_url(string $url): ?string {
     if (preg_match('#^https://apnews\.com/hub/([\w,-]+)#', $url, $tags) ||
       preg_match('#^https://apnews\.com/(?:tag/)?([^/]+)#', $url, $tags) ||
       preg_match('#^https://afs-prod\.appspot\.com/api/v2/feed/tag\?tags=(.+)$#', $url, $tags)) {
       return $tags[1];
     }
-    return false;
+    return null;
   }
 
-  private function get_site_url($tags) {
+  private function get_site_url(string $tags): string {
     return 'https://apnews.com/hub/'.$tags;
   }
 
-  private function get_json($url) {
+	/**
+	 * @return array<int|string, mixed>|null
+	 */
+  private function get_json(string $url): ?array {
     $content = UrlHelper::fetch(['url' => $url]);
     $doc = new DOMDocument();
 
@@ -141,10 +168,10 @@ class Apnews extends Plugin {
       }
     }
 
-    return false;
+    return null;
   }
 
-  private function get_title($tags) {
+  private function get_title(string $tags): string {
     // Create a feed title like "AP News: Tag A, Tag B, ..."
     return 'AP News: '.str_replace(',', ', ', $tags);
   }
